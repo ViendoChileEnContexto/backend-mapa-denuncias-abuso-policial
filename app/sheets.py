@@ -13,7 +13,18 @@ SHEET_ID = environ.get("SHEET_ID", "")
 
 def _append_to_sheet(sheet_id, values):
     scopes = ['https://www.googleapis.com/auth/drive']
-    cred = json.loads(environ.get("credentials", ""))
+    cred = {
+        "type": environ.get("TYPE", ""),
+        "project_id": environ.get("PROJECT_ID", ""),
+        "private_key_id": environ.get("PRIVATE_KEY_ID", ""),
+        "private_key": environ.get("PRIVATE_KEY", "").replace("\\n", "\n"),
+        "client_email": environ.get("CLIENT_EMAIL", ""),
+        "client_id": environ.get("CLIENT_ID", ""),
+        "auth_uri": environ.get("AUTH_URI", ""),
+        "token_uri": environ.get("TOKEN_URI", ""),
+        "auth_provider_x509_cert_url": environ.get("AUTH_PROVIDER", ""),
+        "client_x509_cert_url": environ.get("CLIENT", ""),
+    }
     credentials = SAC.from_json_keyfile_dict(cred, scopes)
     client = gspread.authorize(credentials)
     sheet = client.open_by_key(sheet_id)
@@ -38,14 +49,15 @@ def post_report(app, request):
 
     try:
         timestamp = time()
-        link = attrs.get("Link")
-        label = attrs.get("Etiqueta")
-        place = attrs.get("Lugar")
-        lat = attrs.get("Latitud")
-        lon = attrs.get("Longitud")
-        desc = attrs.get("Description")
-        _append_to_sheet(
-            SHEET_ID, [str(timestamp), link, label, place, lat, lon, desc])
+        link = attrs.get("Link", "")
+        label = attrs.get("Etiqueta", "")
+        place = attrs.get("Lugar", "")
+        lat = attrs.get("Latitud", "")
+        lon = attrs.get("Longitud", "")
+        desc = attrs.get("Description", "")
+        _append_to_sheet(SHEET_ID, [
+            str(timestamp), link, label, place, str(lat), str(lon), desc,
+        ])
     except gspread.exceptions.GSpreadException:
         raise InternalServerError(description="Reporte no registrado (GSpreadException)")
     except Exception as e:

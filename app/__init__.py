@@ -10,10 +10,6 @@ from .sheets import post_report
 
 # Initialize application
 app = Flask(__name__)
-app.config.from_mapping(
-    DEBUG=True,
-    SECRET_KEY=environ.get("FLASK_SECRET_KEY", token_hex(64)),
-)
 CORS(app)
 
 
@@ -50,4 +46,7 @@ def report():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(
+        threaded=True,
+        secret_key=environ.get("FLASK_SECRET_KEY", token_hex(64)),
+    )
